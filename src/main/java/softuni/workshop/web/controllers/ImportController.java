@@ -1,6 +1,7 @@
 package softuni.workshop.web.controllers;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,9 @@ public class ImportController extends BaseController {
     private final EmployeeService employeeService;
     private final ProjectService projectService;
     private final CompanyService companyService;
+    @Autowired
     private final XmlParser xmlParser;
+    @Autowired
     private final ModelMapper modelMapper;
 
     public ImportController(EmployeeService employeeService, ProjectService projectService, CompanyService companyService, XmlParser xmlParser, ModelMapper modelMapper) {
@@ -53,5 +56,31 @@ public class ImportController extends BaseController {
     public ModelAndView companiesConfirm() throws JAXBException {
         companyService.importCompanies();
        return super.redirect("/import/xml");
+    }
+
+    @GetMapping("/projects")
+    public ModelAndView projects() throws IOException {
+        ModelAndView modelAndView = super.view("xml/import-projects");
+        modelAndView.addObject("projects",projectService.readProjectsXmlFile());
+        return modelAndView;
+    }
+
+    @PostMapping("/projects")
+    public ModelAndView projectsConfirm() throws JAXBException {
+        projectService.importProjects();
+        return super.redirect("/import/xml");
+    }
+
+    @GetMapping("/employees")
+    public ModelAndView employees() throws IOException {
+        ModelAndView modelAndView = super.view("xml/import-employees");
+        modelAndView.addObject("employees",employeeService.readEmployeesXmlFile());
+        return modelAndView;
+    }
+
+    @PostMapping("/employees")
+    public ModelAndView employeesConfirm() throws JAXBException {
+        employeeService.importEmployees();
+        return super.redirect("/import/xml");
     }
 }

@@ -20,7 +20,7 @@ public class Project extends BaseEntity{
     private String startDate;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
+//    @JoinColumn(name = "company_id")
     private Company company;
 
     @OneToMany(mappedBy = "project")

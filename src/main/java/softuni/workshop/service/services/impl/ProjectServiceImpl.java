@@ -1,22 +1,64 @@
 package softuni.workshop.service.services.impl;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import softuni.workshop.data.dtos.ProjectDto;
+import softuni.workshop.data.dtos.ProjectRootDto;
+import softuni.workshop.data.entities.Company;
+import softuni.workshop.data.entities.Project;
+import softuni.workshop.data.repositories.CompanyRepository;
 import softuni.workshop.data.repositories.ProjectRepository;
 import softuni.workshop.service.services.ProjectService;
+import softuni.workshop.util.XmlParser;
+
+import org.springframework.transaction.annotation.Transactional;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 
 @Service
+@Transactional
 public class ProjectServiceImpl implements ProjectService {
 
+    private final static String PROJECT_PATH = "src/main/resources/files/xmls/projects.xml";
+
+    @Autowired
     private final ProjectRepository projectRepository;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    @Autowired
+    private final XmlParser xmlParser;
+    @Autowired
+    private final ModelMapper modelMapper;
+    @Autowired
+    private final CompanyRepository companyRepository;
+
+    public ProjectServiceImpl(ProjectRepository projectRepository, XmlParser xmlParser, ModelMapper modelMapper, CompanyRepository companyRepository) {
         this.projectRepository = projectRepository;
+        this.xmlParser = xmlParser;
+        this.modelMapper = modelMapper;
+        this.companyRepository = companyRepository;
     }
 
     @Override
-    public void importProjects(){
+    public void importProjects() throws JAXBException {
         //TODO seed in database
+
+        ProjectRootDto projectRootDto = xmlParser.parseXml(ProjectRootDto.class, PROJECT_PATH);
+
+        for (ProjectDto projectDto : projectRootDto.getProjectDtoList()) {
+            Company company = companyRepository.findByName(projectDto.getCompanyDtoProject().getName());
+
+            if (company != null){
+                Project project = modelMapper.map(projectDto, Project.class);
+                project.setCompany(company);
+
+                projectRepository.saveAndFlush(project);
+            }
+
+        }
     }
 
     @Override
@@ -26,9 +68,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public String readProjectsXmlFile() {
+    public String readProjectsXmlFile() throws IOException {
         //TODO read xml file
-      return null;
+      return String.join("\n", Files.readAllLines(Path.of(PROJECT_PATH)));
     }
 
     @Override

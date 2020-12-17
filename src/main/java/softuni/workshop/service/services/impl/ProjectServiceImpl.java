@@ -76,6 +76,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public String exportFinishedProjects(){
         //TODO export finished projects
-        return null;
+        StringBuilder sb = new StringBuilder();
+        for (Project project : projectRepository.findAllByFinishedIsTrue()) {
+
+            sb.append(String.format("Project Name: %s", project.getName()))
+                    .append(System.lineSeparator());
+            sb.append(String.format("\tDescription: %s", project.getDescription()))
+                    .append(System.lineSeparator());
+            sb.append(String.format("\t%.2f", project.getPayment()))
+                    .append(System.lineSeparator());
+        }
+
+
+        return sb.toString();
     }
 }

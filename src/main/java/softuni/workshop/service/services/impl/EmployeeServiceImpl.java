@@ -80,6 +80,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public String exportEmployeesWithAgeAbove() {
         //TODO export employees with age above 25
-        return null;
+        StringBuilder sb = new StringBuilder();
+
+        for (Employee employee : employeeRepository.findAllByAgeAfter25()) {
+            sb.append(String.format("Name: %s",employee.getFirstName() + " " + employee.getLastName()))
+                    .append(System.lineSeparator());
+            sb.append(String.format("\tAge: %d", employee.getAge()))
+                    .append(System.lineSeparator());
+            sb.append(String.format("\tProject name: %s", employee.getProject().getName()))
+                    .append(System.lineSeparator());
+
+        }
+
+        return sb.toString();
     }
 }
